@@ -63,7 +63,7 @@ class GUI:
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computerChoiceImg.config(image=static_image_tk)
         self.computerChoiceImg.image = static_image_tk  # Keep a reference to avoid garbage collection
-        self.btn = tk.Button(self.root, text="Com[p]", font=('Arial', 16), command=lambda: self.updateComputerChoice(random.choice([0, 1, 2])))
+        self.btn = tk.Button(self.root, text="Computer", font=('Arial', 16), command=lambda: self.updateComputerChoice(random.choice([0, 1, 2])))
         self.btn.pack()
         # OpenCV Video Capture
         self.cap = cv2.VideoCapture(0)  # Use 0 for webcam or replace with video file path

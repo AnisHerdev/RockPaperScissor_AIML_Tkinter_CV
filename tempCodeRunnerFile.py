@@ -1,1 +1,2 @@
-from PIL.Image import Resampling
+.mixer.music.get_busy():
+    pass

@@ -20,7 +20,7 @@ This project implements a hand gesture recognition system using Google's MediaPi
 1. Clone the repository:
     ```bash
     git clone https://github.com/AnisHerdev/RockPaperScissor_AIML_Tkinter_CV.git
-    cd hand-gesture-recognition-mediapipe
+    cd RockPaperScissor_AIML_Tkinter_CV
     ```
 
 2. Install dependencies:

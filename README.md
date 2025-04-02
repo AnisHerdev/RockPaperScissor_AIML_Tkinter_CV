@@ -25,7 +25,7 @@ This project implements a hand gesture recognition system using Google's MediaPi
 
 2. Install dependencies:
     ```bash
-    python3.11 -m venv myenv
+    py -3.11 -m venv myenv
     myenv\Scripts\activate
     pip install -r requirements.txt
 

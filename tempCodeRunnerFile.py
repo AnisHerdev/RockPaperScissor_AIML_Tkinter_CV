@@ -1,2 +1,2 @@
-.mixer.music.get_busy():
+ixer.music.get_busy():
     pass

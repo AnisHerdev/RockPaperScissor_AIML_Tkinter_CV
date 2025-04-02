@@ -1,17 +1,22 @@
 import random
 import tkinter as tk
-from app import main  
+# from app import main  
 import cv2
 from PIL import Image, ImageTk
 from PIL.Image import Resampling
 from model import KeyPointClassifier  # Import KeyPointClassifier
 import mediapipe as mp
-from utils import CvFpsCalc
-from collections import deque, Counter
+# from utils import CvFpsCalc
+# from collections import deque, Counter
 import itertools
+import pygame
+
 
 class GUI:
     def __init__(self):
+        pygame.mixer.init()
+        self.countdown_sound = pygame.mixer.Sound("countdown.mp3")
+        pygame.mixer.music.load("game-start.mp3")
         self.root = tk.Tk()
         self.root.title("Rock Paper Scissors") # name of the window
         self.root.geometry("800x500")
@@ -42,9 +47,13 @@ class GUI:
         self.pointsFrame.columnconfigure(0,weight=1)
         self.pointsFrame.columnconfigure(1,weight=1)
 
-        self.humanPointsLabel = tk.Label(self.pointsFrame, text="Your Points: 0", font=('Arial',16),bg="light green")
+        self.humanPoints=tk.IntVar()
+        self.humanPoints.set(0)
+        self.computerPoints=tk.IntVar()
+        self.computerPoints.set(0)
+        self.humanPointsLabel = tk.Label(self.pointsFrame, text=f"Your Points: {self.humanPoints.get()}", font=('Arial',16),bg="light green")
         self.humanPointsLabel.grid(row = 0,column=0, padx=10)
-        self.computerPointsLabel = tk.Label(self.pointsFrame, text="Computer Points: 0", font=('Arial',16),bg="light green")
+        self.computerPointsLabel = tk.Label(self.pointsFrame, text=f"Computer Points: {self.computerPoints.get()}", font=('Arial',16),bg="light green")
         self.computerPointsLabel.grid(row = 0,column=1, padx=10)
 
         self.label = tk.Label(self.root, text="Choose an option", font=("Arial", 16))
@@ -53,7 +62,7 @@ class GUI:
         self.videoFrame = tk.Frame(self.root)
         self.videoFrame.columnconfigure(0, weight=1)
         self.videoFrame.columnconfigure(1, weight=1)
-        self.canvas = tk.Canvas(self.videoFrame, width=620, height=480)
+        self.canvas = tk.Canvas(self.videoFrame, width=620, height=480) 
         self.canvas.grid(row=0, column=0, padx=10, pady=10)
 
         self.computerChoiceImg = tk.Label(self.videoFrame)
@@ -63,8 +72,10 @@ class GUI:
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computerChoiceImg.config(image=static_image_tk)
         self.computerChoiceImg.image = static_image_tk  # Keep a reference to avoid garbage collection
-        self.btn = tk.Button(self.root, text="Computer", font=('Arial', 16), command=lambda: self.updateComputerChoice(random.choice([0, 1, 2])))
+        self.btn = tk.Button(self.root, text="Computer", font=('Arial', 16), command=self.updateComputerChoice)
         self.btn.pack()
+        self.btn2 = tk.Button(self.root, text="ScoreUpdate", font=('Arial', 16), command=self.updateScore)
+        self.btn2.pack()
         # OpenCV Video Capture
         self.cap = cv2.VideoCapture(0)  # Use 0 for webcam or replace with video file path
 
@@ -79,8 +90,9 @@ class GUI:
         self.keypoint_classifier = KeyPointClassifier()
         self.keypoint_classifier_labels = ["paper", "rock", "scissors", "unknown"]
 
+        pygame.mixer.music.play(loops=0, start=0.4)
         self.update_video()
-        self.updateComputerChoice(random.choice([0, 1, 2]))
+        self.updateComputerChoice()
         self.root.mainloop()
 
     def update_video(self):
@@ -93,7 +105,7 @@ class GUI:
             # Process the frame with Mediapipe Hands
             results = self.hands.process(frame_rgb)
             gesture_text = "No Hand Detected"
-
+            # print(results.multi_hand_landmarks[0].landmark[0].x, results.multi_hand_landmarks[0].landmark[0].y, results.multi_hand_landmarks[0].landmark[0].z)
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
                     # Extract landmark coordinates
@@ -148,18 +160,21 @@ class GUI:
         return temp_landmark_list
 
     def pointsToWin(self):
+        pygame.mixer.music.play(loops=0, start=0.4)
         print(self.points.get())
         self.videoFrame.pack()
         self.pointsFrame.pack(padx=20, pady=20, fill='x')
         self.getNumpointsFrame.destroy()
         self.label.pack(pady=10)
+        self.countdown_sound.play(loops=0)
 
-    def updateComputerChoice(self,computer_choice=3):
-        if computer_choice == 1:
+    def updateComputerChoice(self):
+        self.computer_choice = random.choice([0, 1, 2])  # Randomly choose between 0 (paper), 1 (rock), and 2 (scissors)
+        if self.computer_choice == 1:
             image_path = "rock.jpg"
-        elif computer_choice == 0:
+        elif self.computer_choice == 0:
             image_path = "paper.jpg"
-        elif computer_choice == 2:
+        elif self.computer_choice == 2:
             image_path = "scissor.jpg"
         else:
             image_path = "thinking.jpg"
@@ -167,6 +182,35 @@ class GUI:
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computerChoiceImg.config(image=static_image_tk)
         self.computerChoiceImg.image = static_image_tk  
+    def updateScore(self):
+        human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
+        print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
+        if human_choice == self.computer_choice:  # Tie   Paper=0 Rock=1 Scissor=2
+            pass
+        elif (human_choice == 0 and self.computer_choice == 2) or (human_choice == 1 and self.computer_choice == 0) or (human_choice == 2 and self.computer_choice == 1):
+            self.computerPoints.set(self.computerPoints.get() + 1)
+        else:
+            self.humanPoints.set(self.humanPoints.get() + 1)
+        self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
+        self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
+        if self.humanPoints.get() >= self.points.get():
+            self.label.config(text="You Win!")
+            # self.resetGame()
+        elif self.computerPoints.get() >= self.points.get():
+            self.label.config(text="Computer Wins!")
+            # self.resetGame()
+        else:
+            self.label.config(text="Choose an option")
+        self.updateComputerChoice()
+    def resetGame(self):
+        self.humanPoints.set(0)
+        self.computerPoints.set(0)
+        self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
+        self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
+        self.videoFrame.destroy()
+        self.pointsFrame.destroy()
+        self.getNumpointsFrame.pack(pady=20)
+        self.label.destroy()
 
     def __del__(self):
         if self.cap.isOpened():

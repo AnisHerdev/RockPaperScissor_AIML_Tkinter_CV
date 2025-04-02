@@ -200,7 +200,8 @@ def main():
         image.flags.writeable = False
         results = hands.process(image)
         image.flags.writeable = True
-
+        # print(results.multi_hand_landmarks[0].landmark[0].x, results.multi_hand_landmarks[0].landmark[0].y)
+        
         # Hand gesture classification ##########################################################
         hand_sign_text = "No Hand Detected"
         if results.multi_hand_landmarks is not None:

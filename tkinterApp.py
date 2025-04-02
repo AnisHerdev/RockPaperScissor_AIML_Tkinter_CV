@@ -164,7 +164,7 @@ class GUI:
         print(self.points.get())
         self.videoFrame.pack()
         self.pointsFrame.pack(padx=20, pady=20, fill='x')
-        self.getNumpointsFrame.destroy()
+        self.getNumpointsFrame.pack_forget()
         self.label.pack(pady=10)
         self.countdown_sound.play(loops=0)
 
@@ -195,10 +195,10 @@ class GUI:
         self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
         if self.humanPoints.get() >= self.points.get():
             self.label.config(text="You Win!")
-            # self.resetGame()
+            self.resetGame()
         elif self.computerPoints.get() >= self.points.get():
             self.label.config(text="Computer Wins!")
-            # self.resetGame()
+            self.resetGame()
         else:
             self.label.config(text="Choose an option")
         self.updateComputerChoice()
@@ -207,10 +207,10 @@ class GUI:
         self.computerPoints.set(0)
         self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
         self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
-        self.videoFrame.destroy()
-        self.pointsFrame.destroy()
+        self.videoFrame.pack_forget()
+        self.pointsFrame.pack_forget()
         self.getNumpointsFrame.pack(pady=20)
-        self.label.destroy()
+        self.label.pack_forget()
 
     def __del__(self):
         if self.cap.isOpened():

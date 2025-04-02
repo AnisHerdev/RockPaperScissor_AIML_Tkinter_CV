@@ -90,6 +90,7 @@ class GUI:
         self.keypoint_classifier = KeyPointClassifier()
         self.keypoint_classifier_labels = ["paper", "rock", "scissors", "unknown"]
 
+        self.winnerLabel = tk.Label(self.root, text="You Win!", font=("Arial", 16), bg="light green")
         pygame.mixer.music.play(loops=0, start=0.4)
         self.update_video()
         self.updateComputerChoice()
@@ -165,6 +166,7 @@ class GUI:
         self.videoFrame.pack()
         self.pointsFrame.pack(padx=20, pady=20, fill='x')
         self.getNumpointsFrame.pack_forget()
+        self.winnerLabel.pack_forget()
         self.label.pack(pady=10)
         self.countdown_sound.play(loops=0)
 
@@ -182,6 +184,7 @@ class GUI:
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computerChoiceImg.config(image=static_image_tk)
         self.computerChoiceImg.image = static_image_tk  
+
     def updateScore(self):
         human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
@@ -194,10 +197,12 @@ class GUI:
         self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
         self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
         if self.humanPoints.get() >= self.points.get():
-            self.label.config(text="You Win!")
+            self.winnerLabel.config(text="You Win!")
+            self.winnerLabel.pack(pady=10)
             self.resetGame()
         elif self.computerPoints.get() >= self.points.get():
-            self.label.config(text="Computer Wins!")
+            self.winnerLabel.config(text="Computer Wins!")
+            self.winnerLabel.pack(pady=10)
             self.resetGame()
         else:
             self.label.config(text="Choose an option")

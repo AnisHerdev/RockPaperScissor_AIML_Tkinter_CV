@@ -1,3 +1,4 @@
+import csv
 import random
 import tkinter as tk
 # from app import main  
@@ -189,11 +190,19 @@ class GUI:
         human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
         if human_choice == self.computer_choice:  # Tie   Paper=0 Rock=1 Scissor=2
+            result = 0
             pass
         elif (human_choice == 0 and self.computer_choice == 2) or (human_choice == 1 and self.computer_choice == 0) or (human_choice == 2 and self.computer_choice == 1):
             self.computerPoints.set(self.computerPoints.get() + 1)
+            result = 1
         else:
             self.humanPoints.set(self.humanPoints.get() + 1)
+            result =-1
+
+        with open('output.csv', mode='a', newline='') as file: 
+            csv_writer = csv.writer(file)    
+            csv_writer.writerow([human_choice, self.computer_choice, result])
+
         self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
         self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
         if self.humanPoints.get() >= self.points.get():

@@ -189,17 +189,17 @@ class GUI:
     def updateScore(self):
         human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
-        if human_choice == self.computer_choice:  # Tie   Paper=0 Rock=1 Scissor=2
+        if human_choice == self.computer_choice:  # Tie     Paper=0 Rock=1 Scissor=2
             result = 0
             pass
         elif (human_choice == 0 and self.computer_choice == 2) or (human_choice == 1 and self.computer_choice == 0) or (human_choice == 2 and self.computer_choice == 1):
             self.computerPoints.set(self.computerPoints.get() + 1)
             result = 1
         else:
-            self.humanPoints.set(self.humanPoints.get() + 1)
+            self.humanPoints.set (self.humanPoints.get() + 1)
             result =-1
 
-        with open('output.csv', mode='a', newline='') as file: 
+        with open('output.csv', mode='a',newline='') as file: 
             csv_writer = csv.writer(file)    
             csv_writer.writerow([human_choice, self.computer_choice, result])
 
@@ -216,6 +216,7 @@ class GUI:
         else:
             self.label.config(text="Choose an option")
         self.updateComputerChoice()
+
     def resetGame(self):
         self.humanPoints.set(0)
         self.computerPoints.set(0)
@@ -232,6 +233,7 @@ class GUI:
 
 if __name__ == "__main__":
     GUI()
+    print("Thanks for playing!")
     print("Thanks for playing!")
 
 

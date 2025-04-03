@@ -11,7 +11,8 @@ import mediapipe as mp
 # from collections import deque, Counter
 import itertools
 import pygame
-
+import random
+import numpy as np
 
 class GUI:
     def __init__(self):
@@ -93,7 +94,14 @@ class GUI:
 
         self.winnerLabel = tk.Label(self.root, text="You Win!", font=("Arial", 16), bg="light green")
         pygame.mixer.music.play(loops=0, start=0.4)
+        self.actions = ["paper", "rock", "scissors"]
+        self.q_table = np.zeros((3, 3))
+        # Hyperparameters
+        self.alpha = 0.1  # Learning rate
+        self.gamma = 0.9  # Discount factor
+        self.epsilon = 0.2  # Exploration rate
         self.update_video()
+        self.computer_choice = np.max(self.q_table[random.randint(0, 2)])  # Random initial choice
         self.updateComputerChoice()
         self.root.mainloop()
 
@@ -172,7 +180,6 @@ class GUI:
         self.countdown_sound.play(loops=0)
 
     def updateComputerChoice(self):
-        self.computer_choice = random.choice([0, 1, 2])  # Randomly choose between 0 (paper), 1 (rock), and 2 (scissors)
         if self.computer_choice == 1:
             image_path = "rock.jpg"
         elif self.computer_choice == 0:
@@ -190,18 +197,18 @@ class GUI:
         human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
         if human_choice == self.computer_choice:  # Tie     Paper=0 Rock=1 Scissor=2
-            result = 0
+            reward = 0
             pass
         elif (human_choice == 0 and self.computer_choice == 2) or (human_choice == 1 and self.computer_choice == 0) or (human_choice == 2 and self.computer_choice == 1):
             self.computerPoints.set(self.computerPoints.get() + 1)
-            result = 1
+            reward = 1
         else:
             self.humanPoints.set (self.humanPoints.get() + 1)
-            result =-1
+            reward =-1
 
         with open('output.csv', mode='a',newline='') as file: 
             csv_writer = csv.writer(file)    
-            csv_writer.writerow([human_choice, self.computer_choice, result])
+            csv_writer.writerow([human_choice, self.computer_choice, reward])
 
         self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
         self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
@@ -215,6 +222,12 @@ class GUI:
             self.resetGame()
         else:
             self.label.config(text="Choose an option")
+
+        self.computer_choice = self.choose_action(human_choice)        
+        # Q-learning update
+        self.q_table[human_choice, self.computer_choice] += self.alpha * (reward + self.gamma * np.max(self.q_table[self.computer_choice]) - self.q_table[human_choice, self.computer_choice])
+        print("Q-table:", self.q_table)
+        print("Computer choice:\n", self.computer_choice)
         self.updateComputerChoice()
 
     def resetGame(self):
@@ -227,13 +240,18 @@ class GUI:
         self.getNumpointsFrame.pack(pady=20)
         self.label.pack_forget()
 
+    def choose_action(self, state):
+        """self.Epsilon-greedy action selection."""
+        if random.uniform(0, 1) < self.epsilon:
+            return random.randint(0, 2)  # Explore
+        else:
+            return np.argmax(self.q_table[state])  # Exploit
     def __del__(self):
         if self.cap.isOpened():
             self.cap.release()
 
 if __name__ == "__main__":
     GUI()
-    print("Thanks for playing!")
     print("Thanks for playing!")
 
 

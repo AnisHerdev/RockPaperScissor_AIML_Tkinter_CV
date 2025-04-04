@@ -1,14 +1,11 @@
 import csv
 import random
 import tkinter as tk
-# from app import main  
 import cv2
 from PIL import Image, ImageTk
 from PIL.Image import Resampling
-from model import KeyPointClassifier  # Import KeyPointClassifier
+from model import KeyPointClassifier  
 import mediapipe as mp
-# from utils import CvFpsCalc
-# from collections import deque, Counter
 import itertools
 import pygame
 import random
@@ -95,7 +92,12 @@ class GUI:
         self.winnerLabel = tk.Label(self.root, text="You Win!", font=("Arial", 16), bg="light green")
         pygame.mixer.music.play(loops=0, start=0.4)
         self.actions = ["paper", "rock", "scissors"]
-        self.q_table = np.zeros((3, 3))
+        try:
+            self.q_table = np.load("q_table.npy")
+            print("Q-table loaded successfully.")
+        except FileNotFoundError:
+            self.q_table = np.zeros((3, 3))
+            print("No Q-table found. Initialized a new Q-table.")
         # Hyperparameters
         self.alpha = 0.1  # Learning rate
         self.gamma = 0.9  # Discount factor
@@ -226,8 +228,8 @@ class GUI:
         self.computer_choice = self.choose_action(human_choice)        
         # Q-learning update
         self.q_table[human_choice, self.computer_choice] += self.alpha * (reward + self.gamma * np.max(self.q_table[self.computer_choice]) - self.q_table[human_choice, self.computer_choice])
-        print("Q-table:", self.q_table)
-        print("Computer choice:\n", self.computer_choice)
+        print("Q-table:\n", self.q_table)
+        print("Computer choice:", self.computer_choice)
         self.updateComputerChoice()
 
     def resetGame(self):
@@ -249,6 +251,8 @@ class GUI:
     def __del__(self):
         if self.cap.isOpened():
             self.cap.release()
+        np.save("q_table.npy", self.q_table)
+        print("Q-table saved successfully.")
 
 if __name__ == "__main__":
     GUI()

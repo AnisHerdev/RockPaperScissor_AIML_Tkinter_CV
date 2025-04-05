@@ -18,7 +18,7 @@ class GUI:
         pygame.mixer.music.load("game-start.mp3")
         self.root = tk.Tk()
         self.root.title("Rock Paper Scissors") # name of the window
-        self.root.geometry("800x500")
+        self.root.geometry("960x600")
         self.root.config(bg="light green")
         self.mainLabel = tk.Label(self.root, text="Rock Paper Scissors", font=("Arial", 24))
         self.mainLabel.pack(pady=20)

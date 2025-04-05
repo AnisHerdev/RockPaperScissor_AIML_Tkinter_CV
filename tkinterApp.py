@@ -103,7 +103,9 @@ class GUI:
         self.gamma = 0.9  # Discount factor
         self.epsilon = 0.2  # Exploration rate
         self.update_video()
+        self.isRunning = True
         self.computer_choice = np.max(self.q_table[random.randint(0, 2)])  # Random initial choice
+        print("Computer choice: ", self.computer_choice)
         self.updateComputerChoice()
         self.root.mainloop()
 
@@ -180,6 +182,21 @@ class GUI:
         self.winnerLabel.pack_forget()
         self.label.pack(pady=10)
         self.countdown_sound.play(loops=0)
+        self.isRunning = True
+        self.startGame()
+    
+    def startGame(self):
+        if not self.isRunning:
+            return
+        self.countdown_sound.play(loops=0)
+        # pygame.mixer.music.play(loops=0, start=0.4)
+        static_image = Image.open("thinking.jpg").resize((620, 480), Resampling.LANCZOS)
+        static_image_tk = ImageTk.PhotoImage(static_image)
+        self.computerChoiceImg.config(image=static_image_tk)
+        self.computerChoiceImg.image = static_image_tk  
+        self.root.after(3000, self.updateScore)
+        self.root.after(6000, self.startGame)  # Start the game after 3 seconds
+
 
     def updateComputerChoice(self):
         if self.computer_choice == 1:
@@ -196,11 +213,14 @@ class GUI:
         self.computerChoiceImg.image = static_image_tk  
 
     def updateScore(self):
-        human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
+        try:
+            human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
+        except ValueError:
+            return  
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
         if human_choice == self.computer_choice:  # Tie     Paper=0 Rock=1 Scissor=2
             reward = 0
-            pass
+        
         elif (human_choice == 0 and self.computer_choice == 2) or (human_choice == 1 and self.computer_choice == 0) or (human_choice == 2 and self.computer_choice == 1):
             self.computerPoints.set(self.computerPoints.get() + 1)
             reward = 1
@@ -233,6 +253,8 @@ class GUI:
         self.updateComputerChoice()
 
     def resetGame(self):
+        self.isRunning = False
+        print("Resetting isRunning to false...")
         self.humanPoints.set(0)
         self.computerPoints.set(0)
         self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")

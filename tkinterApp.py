@@ -73,8 +73,8 @@ class GUI:
         self.computerChoiceImg.image = static_image_tk  # Keep a reference to avoid garbage collection
         # self.btn = tk.Button(self.root, text="Computer", font=('Arial', 16), command=self.updateComputerChoice) # UpdatecomputerChoice manually
         # self.btn.pack()
-        self.btn2 = tk.Button(self.root, text="ScoreUpdate", font=('Arial', 16), command=self.updateScore) # UpdateScore manually
-        self.btn2.pack()
+        # self.btn2 = tk.Button(self.root, text="ScoreUpdate", font=('Arial', 16), command=self.updateScore) # UpdateScore manually
+        # self.btn2.pack()
         # OpenCV Video Capture
         self.cap = cv2.VideoCapture(0)  # Use 0 for webcam or replace with video file path
 

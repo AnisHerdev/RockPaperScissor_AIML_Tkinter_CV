@@ -235,14 +235,14 @@ class GUI:
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
         if human_choice == self.computer_choice:  # Tie     Paper=0 Rock=1 Scissor=2
             reward = 0
-        
-        elif (human_choice == 0 and self.computer_choice == 2) or (human_choice == 1 and self.computer_choice == 0) or (human_choice == 2 and self.computer_choice == 1):
+        elif (human_choice == 0 and self.computer_choice == 2) or \
+             (human_choice == 1 and self.computer_choice == 0) or \
+             (human_choice == 2 and self.computer_choice == 1):
             self.computerPoints.set(self.computerPoints.get() + 1)
             reward = 1
         else:
             self.humanPoints.set (self.humanPoints.get() + 1)
             reward =-1
-
         with open('output.csv', mode='a',newline='') as file: 
             csv_writer = csv.writer(file)    
             csv_writer.writerow([human_choice, self.computer_choice, reward])
@@ -298,6 +298,3 @@ class GUI:
 if __name__ == "__main__":
     GUI()
     print("Thanks for playing!")
-
-
-

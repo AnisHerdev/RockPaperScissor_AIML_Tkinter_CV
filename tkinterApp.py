@@ -104,7 +104,7 @@ class GUI:
         self.epsilon = 0.2  # Exploration rate
         self.update_video()
         self.isRunning = True
-        self.computer_choice = np.max(self.q_table[random.randint(0, 2)])  # Random initial choice
+        self.computer_choice = self.choose_action(random.randint(0, 2))  # Use Q-table to decide initial choice
         print("Computer choice: ", self.computer_choice)
         self.updateComputerChoice()
         self.root.mainloop()
@@ -181,31 +181,37 @@ class GUI:
         self.getNumpointsFrame.pack_forget()
         self.winnerLabel.pack_forget()
         self.label.pack(pady=10)
-        self.countdown_sound.play(loops=0)
+        # self.countdown_sound.play(loops=0)
         self.isRunning = True
         self.startGame()
     
     def startGame(self):
         if not self.isRunning:
             return
+        self.countdown_sound.stop()
         self.countdown_sound.play(loops=0)
         # pygame.mixer.music.play(loops=0, start=0.4)
         static_image = Image.open("thinking.jpg").resize((620, 480), Resampling.LANCZOS)
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computerChoiceImg.config(image=static_image_tk)
         self.computerChoiceImg.image = static_image_tk  
-        self.root.after(3000, self.updateScore)
-        self.root.after(6000, self.startGame)  # Start the game after 3 seconds
+        # Schedule updateScore and startGame
+        self.update_score_timer = self.root.after(3000, self.updateScore)
+        self.start_game_timer = self.root.after(6000, self.startGame)
 
 
     def updateComputerChoice(self):
         if self.computer_choice == 1:
+            print("Computer choice: Rock",self.computer_choice)
             image_path = "rock.jpg"
         elif self.computer_choice == 0:
+            print("Computer choice: Paper",self.computer_choice)
             image_path = "paper.jpg"
-        elif self.computer_choice == 2:
+        elif self.computer_choice == 2: 
+            print("Computer choice: Scissors",self.computer_choice)
             image_path = "scissor.jpg"
         else:
+            print("Computer choice: Unknown",self.computer_choice)
             image_path = "thinking.jpg"
         static_image = Image.open(image_path).resize((620, 480), Resampling.LANCZOS)
         static_image_tk = ImageTk.PhotoImage(static_image)
@@ -213,10 +219,19 @@ class GUI:
         self.computerChoiceImg.image = static_image_tk  
 
     def updateScore(self):
+        if not self.isRunning:
+            return
+        pygame.mixer.music.play(loops=0, start=0.4)
         try:
             human_choice = self.keypoint_classifier_labels.index(self.label.cget("text").split(": ")[1])
         except ValueError:
-            return  
+            return
+
+        self.computer_choice = self.choose_action(human_choice)        
+        # Q-learning update
+        # print("Computer choice:", self.computer_choice)
+        self.updateComputerChoice()
+
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
         if human_choice == self.computer_choice:  # Tie     Paper=0 Rock=1 Scissor=2
             reward = 0
@@ -237,24 +252,28 @@ class GUI:
         if self.humanPoints.get() >= self.points.get():
             self.winnerLabel.config(text="You Win!")
             self.winnerLabel.pack(pady=10)
-            self.resetGame()
+            self.root.after(3000, self.resetGame)
+            # self.resetGame()
         elif self.computerPoints.get() >= self.points.get():
             self.winnerLabel.config(text="Computer Wins!")
             self.winnerLabel.pack(pady=10)
-            self.resetGame()
+            self.root.after(3000, self.resetGame)
+            # self.resetGame()
         else:
             self.label.config(text="Choose an option")
-
-        self.computer_choice = self.choose_action(human_choice)        
-        # Q-learning update
         self.q_table[human_choice, self.computer_choice] += self.alpha * (reward + self.gamma * np.max(self.q_table[self.computer_choice]) - self.q_table[human_choice, self.computer_choice])
-        print("Q-table:\n", self.q_table)
-        print("Computer choice:", self.computer_choice)
-        self.updateComputerChoice()
+        # print("Q-table:\n", self.q_table)
+
 
     def resetGame(self):
+        self.countdown_sound.stop()
         self.isRunning = False
         print("Resetting isRunning to false...")
+        # Cancel any scheduled calls to updateScore or startGame
+        if hasattr(self, 'update_score_timer'):
+            self.root.after_cancel(self.update_score_timer)
+        if hasattr(self, 'start_game_timer'):
+            self.root.after_cancel(self.start_game_timer)
         self.humanPoints.set(0)
         self.computerPoints.set(0)
         self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")

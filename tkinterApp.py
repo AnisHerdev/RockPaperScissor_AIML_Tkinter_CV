@@ -196,7 +196,7 @@ class GUI:
         self.computerChoiceImg.config(image=static_image_tk)
         self.computerChoiceImg.image = static_image_tk  
         # Schedule updateScore and startGame
-        self.update_score_timer = self.root.after(3000, self.updateScore)
+        self.update_score_timer = self.root.after(3200, self.updateScore)
         self.start_game_timer = self.root.after(6000, self.startGame)
 
 

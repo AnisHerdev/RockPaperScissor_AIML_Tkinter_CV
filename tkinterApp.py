@@ -4,11 +4,10 @@ import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
 from PIL.Image import Resampling
-from model import KeyPointClassifier  
+from model import KeyPointClassifier
 import mediapipe as mp
 import itertools
 import pygame
-import random
 import numpy as np
 
 class GUI:
@@ -20,57 +19,57 @@ class GUI:
         self.root.title("Rock Paper Scissors") # name of the window
         self.root.geometry("960x600")
         self.root.config(bg="light green")
-        self.mainLabel = tk.Label(self.root, text="Rock Paper Scissors", font=("Arial", 24))
-        self.mainLabel.pack(pady=20)
+        self.main_label = tk.Label(self.root, text="Rock Paper Scissors", font=("Arial", 24))
+        self.main_label.pack(pady=20)
 
         self.points = tk.IntVar()
         self.points.set(3) # default value for points to win
 
-        self.getNumpointsFrame = tk.Frame(self.root)
-        self.getNumpointsFrame.config(bg="light green")
-        self.getNumpointsFrame.columnconfigure(0,weight=1)
-        self.getNumpointsFrame.columnconfigure(1,weight=1)
-        self.getNumpointsFrame.columnconfigure(2,weight=1)
+        self.get_num_points_frame = tk.Frame(self.root)
+        self.get_num_points_frame.config(bg="light green")
+        self.get_num_points_frame.columnconfigure(0, weight=1)
+        self.get_num_points_frame.columnconfigure(1, weight=1)
+        self.get_num_points_frame.columnconfigure(2, weight=1)
 
-        self.pointsLabel = tk.Label(self.getNumpointsFrame, text="Points to Win", font=('Arial',16),bg="light green")
-        self.pointsLabel.grid(row = 0,column=0, padx=10)
-        self.pointsEntry = tk.Entry(self.getNumpointsFrame, textvariable=self.points, font=('Arial',16),width=5)
-        self.pointsEntry.grid(row = 0,column=1, padx=10)
-        self.pointsToWinBtn = tk.Button(self.getNumpointsFrame, text="Start Game", font=('Arial',16),command=self.pointsToWin)
-        self.pointsToWinBtn.grid(row = 0,column=2,padx=10)
+        self.points_label = tk.Label(self.get_num_points_frame, text="Points to Win", font=('Arial', 16), bg="light green")
+        self.points_label.grid(row=0, column=0, padx=10)
+        self.points_entry = tk.Entry(self.get_num_points_frame, textvariable=self.points, font=('Arial', 16), width=5)
+        self.points_entry.grid(row=0, column=1, padx=10)
+        self.points_to_win_btn = tk.Button(self.get_num_points_frame, text="Start Game", font=('Arial', 16), command=self.pointsToWin)
+        self.points_to_win_btn.grid(row=0, column=2, padx=10)
 
-        self.getNumpointsFrame.pack(pady=20)
+        self.get_num_points_frame.pack(pady=20)
 
-        self.pointsFrame = tk.Frame(self.root)
-        self.pointsFrame.config(bg="light green")
-        self.pointsFrame.columnconfigure(0,weight=1)
-        self.pointsFrame.columnconfigure(1,weight=1)
+        self.points_frame = tk.Frame(self.root)
+        self.points_frame.config(bg="light green")
+        self.points_frame.columnconfigure(0, weight=1)
+        self.points_frame.columnconfigure(1, weight=1)
 
-        self.humanPoints=tk.IntVar()
-        self.humanPoints.set(0)
-        self.computerPoints=tk.IntVar()
-        self.computerPoints.set(0)
-        self.humanPointsLabel = tk.Label(self.pointsFrame, text=f"Your Points: {self.humanPoints.get()}", font=('Arial',16),bg="light green")
-        self.humanPointsLabel.grid(row = 0,column=0, padx=10)
-        self.computerPointsLabel = tk.Label(self.pointsFrame, text=f"Computer Points: {self.computerPoints.get()}", font=('Arial',16),bg="light green")
-        self.computerPointsLabel.grid(row = 0,column=1, padx=10)
+        self.human_points = tk.IntVar()
+        self.human_points.set(0)
+        self.computer_points = tk.IntVar()
+        self.computer_points.set(0)
+        self.human_points_label = tk.Label(self.points_frame, text=f"Your Points: {self.human_points.get()}", font=('Arial', 16), bg="light green")
+        self.human_points_label.grid(row=0, column=0, padx=10)
+        self.computer_points_label = tk.Label(self.points_frame, text=f"Computer Points: {self.computer_points.get()}", font=('Arial', 16), bg="light green")
+        self.computer_points_label.grid(row=0, column=1, padx=10)
 
         self.label = tk.Label(self.root, text="Choose an option", font=("Arial", 16))
 
         # Video Frame
-        self.videoFrame = tk.Frame(self.root)
-        self.videoFrame.columnconfigure(0, weight=1)
-        self.videoFrame.columnconfigure(1, weight=1)
-        self.canvas = tk.Canvas(self.videoFrame, width=620, height=480) 
+        self.video_frame = tk.Frame(self.root)
+        self.video_frame.columnconfigure(0, weight=1)
+        self.video_frame.columnconfigure(1, weight=1)
+        self.canvas = tk.Canvas(self.video_frame, width=620, height=480)
         self.canvas.grid(row=0, column=0, padx=10, pady=10)
 
-        self.computerChoiceImg = tk.Label(self.videoFrame)
-        self.computerChoiceImg.grid(row=0, column=1, padx=10, pady=10)
+        self.computer_choice_img = tk.Label(self.video_frame)
+        self.computer_choice_img.grid(row=0, column=1, padx=10, pady=10)
 
         static_image = Image.open("scissor.jpg").resize((620, 480), Image.Resampling.LANCZOS)
         static_image_tk = ImageTk.PhotoImage(static_image)
-        self.computerChoiceImg.config(image=static_image_tk)
-        self.computerChoiceImg.image = static_image_tk  # Keep a reference to avoid garbage collection
+        self.computer_choice_img.config(image=static_image_tk)
+        self.computer_choice_img.image = static_image_tk  # Keep a reference to avoid garbage collection
         # self.btn = tk.Button(self.root, text="Computer", font=('Arial', 16), command=self.updateComputerChoice) # UpdatecomputerChoice manually
         # self.btn.pack()
         # self.btn2 = tk.Button(self.root, text="ScoreUpdate", font=('Arial', 16), command=self.updateScore) # UpdateScore manually
@@ -89,7 +88,7 @@ class GUI:
         self.keypoint_classifier = KeyPointClassifier()
         self.keypoint_classifier_labels = ["paper", "rock", "scissors", "unknown"]
 
-        self.winnerLabel = tk.Label(self.root, text="You Win!", font=("Arial", 16), bg="light green")
+        self.winner_label = tk.Label(self.root, text="You Win!", font=("Arial", 16), bg="light green")
         pygame.mixer.music.play(loops=0, start=0.4)
         self.actions = ["paper", "rock", "scissors"]
         try:
@@ -103,7 +102,7 @@ class GUI:
         self.gamma = 0.9  # Discount factor
         self.epsilon = 0.2  # Exploration rate
         self.update_video()
-        self.isRunning = True
+        self.is_running = True
         self.computer_choice = self.choose_action(random.randint(0, 2))  # Use Q-table to decide initial choice
         print("Computer choice: ", self.computer_choice)
         self.updateComputerChoice()
@@ -176,29 +175,25 @@ class GUI:
     def pointsToWin(self):
         pygame.mixer.music.play(loops=0, start=0.4)
         print(self.points.get())
-        self.videoFrame.pack()
-        self.pointsFrame.pack(padx=20, pady=20, fill='x')
-        self.getNumpointsFrame.pack_forget()
-        self.winnerLabel.pack_forget()
+        self.video_frame.pack()
+        self.points_frame.pack(padx=20, pady=20, fill='x')
+        self.get_num_points_frame.pack_forget()
+        self.winner_label.pack_forget()
         self.label.pack(pady=10)
-        # self.countdown_sound.play(loops=0)
-        self.isRunning = True
+        self.is_running = True
         self.startGame()
     
     def startGame(self):
-        if not self.isRunning:
+        if not self.is_running:
             return
         self.countdown_sound.stop()
         self.countdown_sound.play(loops=0)
-        # pygame.mixer.music.play(loops=0, start=0.4)
         static_image = Image.open("thinking.jpg").resize((620, 480), Resampling.LANCZOS)
         static_image_tk = ImageTk.PhotoImage(static_image)
-        self.computerChoiceImg.config(image=static_image_tk)
-        self.computerChoiceImg.image = static_image_tk  
-        # Schedule updateScore and startGame
+        self.computer_choice_img.config(image=static_image_tk)
+        self.computer_choice_img.image = static_image_tk  
         self.update_score_timer = self.root.after(3200, self.updateScore)
         self.start_game_timer = self.root.after(6000, self.startGame)
-
 
     def updateComputerChoice(self):
         if self.computer_choice == 1:
@@ -215,11 +210,11 @@ class GUI:
             image_path = "thinking.jpg"
         static_image = Image.open(image_path).resize((620, 480), Resampling.LANCZOS)
         static_image_tk = ImageTk.PhotoImage(static_image)
-        self.computerChoiceImg.config(image=static_image_tk)
-        self.computerChoiceImg.image = static_image_tk  
+        self.computer_choice_img.config(image=static_image_tk)
+        self.computer_choice_img.image = static_image_tk  
 
     def updateScore(self):
-        if not self.isRunning:
+        if not self.is_running:
             return
         pygame.mixer.music.play(loops=0, start=0.4)
         try:
@@ -231,32 +226,31 @@ class GUI:
         # Q-learning update
         # print("Computer choice:", self.computer_choice)
         self.updateComputerChoice()
-
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
         if human_choice == self.computer_choice:  # Tie     Paper=0 Rock=1 Scissor=2
             reward = 0
         elif (human_choice == 0 and self.computer_choice == 2) or \
              (human_choice == 1 and self.computer_choice == 0) or \
              (human_choice == 2 and self.computer_choice == 1):
-            self.computerPoints.set(self.computerPoints.get() + 1)
+            self.computer_points.set(self.computer_points.get() + 1)
             reward = 1
         else:
-            self.humanPoints.set (self.humanPoints.get() + 1)
+            self.human_points.set (self.human_points.get() + 1)
             reward =-1
         with open('output.csv', mode='a',newline='') as file: 
             csv_writer = csv.writer(file)    
             csv_writer.writerow([human_choice, self.computer_choice, reward])
 
-        self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
-        self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
-        if self.humanPoints.get() >= self.points.get():
-            self.winnerLabel.config(text="You Win!")
-            self.winnerLabel.pack(pady=10)
+        self.human_points_label.config(text=f"Your Points: {self.human_points.get()}")
+        self.computer_points_label.config(text=f"Computer Points: {self.computer_points.get()}")
+        if self.human_points.get() >= self.points.get():
+            self.winner_label.config(text="You Win!")
+            self.winner_label.pack(pady=10)
             self.root.after(3000, self.resetGame)
             # self.resetGame()
-        elif self.computerPoints.get() >= self.points.get():
-            self.winnerLabel.config(text="Computer Wins!")
-            self.winnerLabel.pack(pady=10)
+        elif self.computer_points.get() >= self.points.get():
+            self.winner_label.config(text="Computer Wins!")
+            self.winner_label.pack(pady=10)
             self.root.after(3000, self.resetGame)
             # self.resetGame()
         else:
@@ -267,20 +261,20 @@ class GUI:
 
     def resetGame(self):
         self.countdown_sound.stop()
-        self.isRunning = False
-        print("Resetting isRunning to false...")
+        self.is_running = False
+        print("Resetting is_running to false...")
         # Cancel any scheduled calls to updateScore or startGame
         if hasattr(self, 'update_score_timer'):
             self.root.after_cancel(self.update_score_timer)
         if hasattr(self, 'start_game_timer'):
             self.root.after_cancel(self.start_game_timer)
-        self.humanPoints.set(0)
-        self.computerPoints.set(0)
-        self.humanPointsLabel.config(text=f"Your Points: {self.humanPoints.get()}")
-        self.computerPointsLabel.config(text=f"Computer Points: {self.computerPoints.get()}")
-        self.videoFrame.pack_forget()
-        self.pointsFrame.pack_forget()
-        self.getNumpointsFrame.pack(pady=20)
+        self.human_points.set(0)
+        self.computer_points.set(0)
+        self.human_points_label.config(text=f"Your Points: {self.human_points.get()}")
+        self.computer_points_label.config(text=f"Computer Points: {self.computer_points.get()}")
+        self.video_frame.pack_forget()
+        self.points_frame.pack_forget()
+        self.get_num_points_frame.pack(pady=20)
         self.label.pack_forget()
 
     def choose_action(self, state):

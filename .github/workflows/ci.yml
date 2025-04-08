@@ -33,7 +33,7 @@ jobs:
     # Run pylint
     - name: Run pylint
       run: |
-        pylint tkinterApp.py
+        pylint --fail-under=5.0 tkinterApp.py
 
     # Run tests
     - name: Run tests

@@ -1,13 +1,13 @@
+import tkinter as tk
+import itertools
 import csv
 import random
 import pygame
 import numpy as np
-import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
 from PIL.Image import Resampling
 import mediapipe as mp
-import itertools
 from model import KeyPointClassifier
 
 class GUI:
@@ -35,7 +35,7 @@ class GUI:
         self.points_label.grid(row=0, column=0, padx=10)
         self.points_entry = tk.Entry(self.get_num_points_frame, textvariable=self.points, font=('Arial', 16), width=5)
         self.points_entry.grid(row=0, column=1, padx=10)
-        self.points_to_win_btn = tk.Button(self.get_num_points_frame, text="Start Game", font=('Arial', 16), command=self.pointsToWin)
+        self.points_to_win_btn = tk.Button(self.get_num_points_frame, text="Start Game", font=('Arial', 16), command=self.points_to_win)
         self.points_to_win_btn.grid(row=0, column=2, padx=10)
 
         self.get_num_points_frame.pack(pady=20)
@@ -70,9 +70,9 @@ class GUI:
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computer_choice_img.config(image=static_image_tk)
         self.computer_choice_img.image = static_image_tk  # Keep a reference to avoid garbage collection
-        # self.btn = tk.Button(self.root, text="Computer", font=('Arial', 16), command=self.updateComputerChoice) # UpdatecomputerChoice manually
+        # self.btn = tk.Button(self.root, text="Computer", font=('Arial', 16), command=self.update_computer_choice) # UpdatecomputerChoice manually
         # self.btn.pack()
-        # self.btn2 = tk.Button(self.root, text="ScoreUpdate", font=('Arial', 16), command=self.updateScore) # UpdateScore manually
+        # self.btn2 = tk.Button(self.root, text="ScoreUpdate", font=('Arial', 16), command=self.update_score) # UpdateScore manually
         # self.btn2.pack()
         # OpenCV Video Capture
         self.cap = cv2.VideoCapture(0)  # Use 0 for webcam or replace with video file path
@@ -105,7 +105,7 @@ class GUI:
         self.is_running = True
         self.computer_choice = self.choose_action(random.randint(0, 2))  # Use Q-table to decide initial choice
         print("Computer choice: ", self.computer_choice)
-        self.updateComputerChoice()
+        self.update_computer_choice()
         self.root.mainloop()
 
     def update_video(self):
@@ -123,17 +123,14 @@ class GUI:
                 for hand_landmarks in results.multi_hand_landmarks:
                     # Extract landmark coordinates
                     landmark_list = self.calc_landmark_list(frame, hand_landmarks)
-
                     # Preprocess the landmarks
                     preprocessed_landmarks = self.pre_process_landmark(landmark_list)
-
                     # Classify the hand gesture
                     hand_sign_id = self.keypoint_classifier(preprocessed_landmarks)
                     gesture_text = self.keypoint_classifier_labels[hand_sign_id]
 
             # Display the classification result
             self.label.config(text=f"Gesture: {gesture_text}")
-
             # Convert the frame to a PIL Image
             img = Image.fromarray(frame_rgb)
             # Convert the PIL Image to an ImageTk object
@@ -172,7 +169,7 @@ class GUI:
 
         return temp_landmark_list
 
-    def pointsToWin(self):
+    def points_to_win(self):
         pygame.mixer.music.play(loops=0, start=0.4)
         print(self.points.get())
         self.video_frame.pack()
@@ -181,9 +178,9 @@ class GUI:
         self.winner_label.pack_forget()
         self.label.pack(pady=10)
         self.is_running = True
-        self.startGame()
+        self.start_game()
     
-    def startGame(self):
+    def start_game(self):
         if not self.is_running:
             return
         self.countdown_sound.stop()
@@ -192,28 +189,28 @@ class GUI:
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computer_choice_img.config(image=static_image_tk)
         self.computer_choice_img.image = static_image_tk  
-        self.update_score_timer = self.root.after(3200, self.updateScore)
-        self.start_game_timer = self.root.after(6000, self.startGame)
+        self.update_score_timer = self.root.after(3200, self.update_score)
+        self.start_game_timer = self.root.after(6000, self.start_game)
 
-    def updateComputerChoice(self):
+    def update_computer_choice(self):
         if self.computer_choice == 1:
-            print("Computer choice: Rock",self.computer_choice)
+            print("Computer choice: Rock", self.computer_choice)
             image_path = "rock.jpg"
         elif self.computer_choice == 0:
-            print("Computer choice: Paper",self.computer_choice)
+            print("Computer choice: Paper", self.computer_choice)
             image_path = "paper.jpg"
         elif self.computer_choice == 2: 
-            print("Computer choice: Scissors",self.computer_choice)
+            print("Computer choice: Scissors", self.computer_choice)
             image_path = "scissor.jpg"
         else:
-            print("Computer choice: Unknown",self.computer_choice)
+            print("Computer choice: Unknown", self.computer_choice)
             image_path = "thinking.jpg"
         static_image = Image.open(image_path).resize((620, 480), Resampling.LANCZOS)
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computer_choice_img.config(image=static_image_tk)
         self.computer_choice_img.image = static_image_tk  
 
-    def updateScore(self):
+    def update_score(self):
         if not self.is_running:
             return
         pygame.mixer.music.play(loops=0, start=0.4)
@@ -225,7 +222,7 @@ class GUI:
         self.computer_choice = self.choose_action(human_choice)        
         # Q-learning update
         # print("Computer choice:", self.computer_choice)
-        self.updateComputerChoice()
+        self.update_computer_choice()
         print( "Human choice: " , human_choice, "|  Computer choice: ", self.computer_choice)
         if human_choice == self.computer_choice:  # Tie     Paper=0 Rock=1 Scissor=2
             reward = 0
@@ -246,24 +243,24 @@ class GUI:
         if self.human_points.get() >= self.points.get():
             self.winner_label.config(text="You Win!")
             self.winner_label.pack(pady=10)
-            self.root.after(3000, self.resetGame)
-            # self.resetGame()
+            self.root.after(3000, self.reset_game)
+            # self.reset_game()
         elif self.computer_points.get() >= self.points.get():
             self.winner_label.config(text="Computer Wins!")
             self.winner_label.pack(pady=10)
-            self.root.after(3000, self.resetGame)
-            # self.resetGame()
+            self.root.after(3000, self.reset_game)
+            # self.reset_game()
         else:
             self.label.config(text="Choose an option")
         self.q_table[human_choice, self.computer_choice] += self.alpha * (reward + self.gamma * np.max(self.q_table[self.computer_choice]) - self.q_table[human_choice, self.computer_choice])
         # print("Q-table:\n", self.q_table)
 
 
-    def resetGame(self):
+    def reset_game(self):
         self.countdown_sound.stop()
         self.is_running = False
         print("Resetting is_running to false...")
-        # Cancel any scheduled calls to updateScore or startGame
+        # Cancel any scheduled calls to update_score or start_game
         if hasattr(self, 'update_score_timer'):
             self.root.after_cancel(self.update_score_timer)
         if hasattr(self, 'start_game_timer'):
@@ -281,8 +278,7 @@ class GUI:
         """self.Epsilon-greedy action selection."""
         if random.uniform(0, 1) < self.epsilon:
             return random.randint(0, 2)  # Explore
-        else:
-            return np.argmax(self.q_table[state])  # Exploit
+        return np.argmax(self.q_table[state])  # Exploit
     def __del__(self):
         if self.cap.isOpened():
             self.cap.release()

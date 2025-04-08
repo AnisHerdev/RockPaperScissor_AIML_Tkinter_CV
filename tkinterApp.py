@@ -1,14 +1,14 @@
 import csv
 import random
+import pygame
+import numpy as np
 import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
 from PIL.Image import Resampling
-from model import KeyPointClassifier
 import mediapipe as mp
 import itertools
-import pygame
-import numpy as np
+from model import KeyPointClassifier
 
 class GUI:
     def __init__(self):

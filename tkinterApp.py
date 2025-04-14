@@ -189,7 +189,7 @@ class GUI:
         static_image_tk = ImageTk.PhotoImage(static_image)
         self.computer_choice_img.config(image=static_image_tk)
         self.computer_choice_img.image = static_image_tk  
-        self.update_score_timer = self.root.after(3200, self.update_score)
+        self.update_score_timer = self.root.after(3400, self.update_score)
         self.start_game_timer = self.root.after(6000, self.start_game)
 
     def update_computer_choice(self):

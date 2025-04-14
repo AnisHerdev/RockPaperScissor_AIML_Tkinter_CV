@@ -203,7 +203,7 @@ def main():
         # print(results.multi_hand_landmarks[0].landmark[0].x, results.multi_hand_landmarks[0].landmark[0].y)
         
         # Hand gesture classification ##########################################################
-        hand_sign_text = "No Hand Detected"
+        hand_sign_text = f"No Hand Detected "
         if results.multi_hand_landmarks is not None:
             for hand_landmarks in results.multi_hand_landmarks:
                 # Landmark calculation
@@ -218,7 +218,7 @@ def main():
 
         # Display classification result ########################################################
         print(f"Gesture: {hand_sign_text}")
-        cv.putText(debug_image, f"Gesture: {hand_sign_text}", (10, 50),
+        cv.putText(debug_image, f"Gesture: {hand_sign_text}  {fps}", (10, 50),
                    cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2, cv.LINE_AA)
         # Screen reflection #############################################################
         cv.imshow('Hand Gesture Recognition', debug_image)

@@ -73,19 +73,11 @@ def main():
         keypoint_classifier_labels = [
             row[0] for row in keypoint_classifier_labels
         ]
-    with open(
-            'model/point_history_classifier/point_history_classifier_label.csv',
-            encoding='utf-8-sig') as f:
-        point_history_classifier_labels = csv.reader(f)
-        point_history_classifier_labels = [
-            row[0] for row in point_history_classifier_labels
-        ]
 
     # FPS Measurement ########################################################
     cvFpsCalc = CvFpsCalc(buffer_len=10)
 
     # Finger gesture history ################################################
-    finger_gesture_history = deque(maxlen=16)
 
     #  ########################################################################
     mode = 0
@@ -125,6 +117,14 @@ def main():
                     landmark_list)
 
                 logging_csv(number, mode, pre_processed_landmark_list, [])
+                # Use MediaPipe's normalized landmark values directly
+                landmark_list__ = [
+                    [landmark.x, landmark.y] for landmark in hand_landmarks.landmark
+                ]
+
+                # Log the normalized landmark values directly
+                logging_csv(number, mode, pre_process_landmark(landmark_list__), "Direct mediapipe")
+
                 # Removed pre_processed_point_history_list from logging_csv call
 
                 # Hand sign classification
@@ -132,11 +132,6 @@ def main():
 
                 # Finger gesture classification
                 finger_gesture_id = 0
-
-                # Calculates the gesture IDs in the latest detection
-                finger_gesture_history.append(finger_gesture_id)
-                most_common_fg_id = Counter(
-                    finger_gesture_history).most_common()
 
                 # Drawing part
                 debug_image = draw_bounding_rect(use_brect, debug_image, brect)
@@ -146,7 +141,6 @@ def main():
                     brect,
                     handedness,
                     keypoint_classifier_labels[hand_sign_id],
-                    point_history_classifier_labels[most_common_fg_id[0][0]],
                 )
 
         debug_image = draw_info(debug_image, fps, mode, number)
@@ -442,6 +436,7 @@ def draw_bounding_rect(use_brect, image, brect):
         # Outer rectangle
         cv.rectangle(image, (brect[0], brect[1]), (brect[2], brect[3]),
                      (0, 0, 0), 1)
+
     return image
 
 

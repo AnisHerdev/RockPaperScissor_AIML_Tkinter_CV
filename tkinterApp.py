@@ -118,7 +118,7 @@ class GUI:
             # Process the frame with Mediapipe Hands
             results = self.hands.process(frame_rgb)
             gesture_text = "No Hand Detected"
-            print("$",results.multi_hand_landmarks[0].landmark[0].x, results.multi_hand_landmarks[0].landmark[0].y, results.multi_hand_landmarks[0].landmark[0].z)
+            # print("$",results.multi_hand_landmarks[0].landmark[0].x, results.multi_hand_landmarks[0].landmark[0].y, results.multi_hand_landmarks[0].landmark[0].z)
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
                     # Extract landmark coordinates
@@ -279,6 +279,7 @@ class GUI:
         if random.uniform(0, 1) < self.epsilon:
             return random.randint(0, 2)  # Explore
         return np.argmax(self.q_table[state])  # Exploit
+    
     def __del__(self):
         if self.cap.isOpened():
             self.cap.release()

@@ -10,9 +10,16 @@ from PIL.Image import Resampling
 import mediapipe as mp
 from model import KeyPointClassifier
 
+try:
+    pygame.mixer.init()
+except pygame.error:
+    print("Audio device not available. Disabling audio.")
+    pygame.mixer = None
+
 class GUI:
     def __init__(self):
         pygame.mixer.init()
+
         self.countdown_sound = pygame.mixer.Sound("countdown.mp3")
         pygame.mixer.music.load("game-start.mp3")
         self.root = tk.Tk()
@@ -283,11 +290,11 @@ class GUI:
             return random.randint(0, 2)  # Explore
         return np.argmax(self.q_table[state])  # Exploit
     
-    def __del__(self):
-        if self.cap.isOpened():
-            self.cap.release()
-        np.save("q_table.npy", self.q_table)
-        print("Q-table saved successfully.")
+    # def __del__(self):
+    #     if hasattr(self, 'cap') and self.cap.isOpened():
+    #         self.cap.release()
+    #     np.save("q_table.npy", self.q_table)
+    #     print("Q-table saved successfully.")
 
 if __name__ == "__main__":
     GUI()

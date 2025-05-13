@@ -106,6 +106,7 @@ class GUI:
         self.computer_choice = self.choose_action(random.randint(0, 2))  # Use Q-table to decide initial choice
         print("Computer choice: ", self.computer_choice)
         self.update_computer_choice()
+        self.restart = tk.Button(self.root, text="Reset Game", font=('Arial', 16), command=self.reset_game)
         self.root.mainloop()
 
     def update_video(self):
@@ -178,6 +179,7 @@ class GUI:
         self.winner_label.pack_forget()
         self.label.pack(pady=10)
         self.is_running = True
+        self.restart.pack(pady=20)
         self.start_game()
     
     def start_game(self):
@@ -273,6 +275,7 @@ class GUI:
         self.points_frame.pack_forget()
         self.get_num_points_frame.pack(pady=20)
         self.label.pack_forget()
+        self.restart.pack_forget()
 
     def choose_action(self, state):
         """self.Epsilon-greedy action selection."""

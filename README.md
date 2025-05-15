@@ -1,4 +1,4 @@
-# Hand Gesture Recognition with MediaPipe
+# Hand Gesture Recognition and move prediction using Q-learning
 
 This project implements a hand gesture recognition system using Google's MediaPipe framework. It leverages machine learning to detect and classify hand gestures in real-time.
 
